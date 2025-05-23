@@ -11,17 +11,21 @@ const Index = () => {
   const [isPromptModalOpen, setIsPromptModalOpen] = useState(false);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-950/20 to-slate-950 text-white overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-purple-950/30 to-indigo-950 text-white overflow-hidden">
       <ThreeBackground />
-      <Navbar 
-        onTransferClick={() => setIsTransferModalOpen(true)}
-        onPromptClick={() => setIsPromptModalOpen(true)}
-      />
-      
-      <HeroSection 
-        onTransferClick={() => setIsTransferModalOpen(true)}
-        onPromptClick={() => setIsPromptModalOpen(true)}
-      />
+      <div className="flex flex-col min-h-screen">
+        <Navbar 
+          onTransferClick={() => setIsTransferModalOpen(true)}
+          onPromptClick={() => setIsPromptModalOpen(true)}
+        />
+        
+        <div className="flex-grow flex items-center justify-center">
+          <HeroSection 
+            onTransferClick={() => setIsTransferModalOpen(true)}
+            onPromptClick={() => setIsPromptModalOpen(true)}
+          />
+        </div>
+      </div>
 
       <MultiTransferModal 
         isOpen={isTransferModalOpen}
