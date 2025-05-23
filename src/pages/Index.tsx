@@ -11,7 +11,7 @@ const Index = () => {
   const [isPromptModalOpen, setIsPromptModalOpen] = useState(false);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900/10 to-cyan-900/10 text-white overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-950/20 to-slate-950 text-white overflow-hidden">
       <ThreeBackground />
       <Navbar 
         onTransferClick={() => setIsTransferModalOpen(true)}
