@@ -7,6 +7,7 @@ const ThreeBackground = () => {
   const sceneRef = useRef<THREE.Scene>();
   const rendererRef = useRef<THREE.WebGLRenderer>();
   const frameRef = useRef<number>();
+  const mousePosition = useRef({ x: 0, y: 0 });
 
   useEffect(() => {
     if (!mountRef.current) return;
@@ -25,7 +26,7 @@ const ThreeBackground = () => {
 
     // Create floating particles
     const particlesGeometry = new THREE.BufferGeometry();
-    const particlesCount = 150;
+    const particlesCount = 200; // Increased particle count
     const posArray = new Float32Array(particlesCount * 3);
 
     for (let i = 0; i < particlesCount * 3; i++) {
@@ -34,15 +35,36 @@ const ThreeBackground = () => {
 
     particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
     
-    const particlesMaterial = new THREE.PointsMaterial({
-      size: 0.005,
+    // Create gradient particles with different colors
+    const particlesMaterial1 = new THREE.PointsMaterial({
+      size: 0.008,
       color: '#00D4FF',
       transparent: true,
       opacity: 0.8,
     });
+    
+    const particlesMaterial2 = new THREE.PointsMaterial({
+      size: 0.006,
+      color: '#9900FF',
+      transparent: true,
+      opacity: 0.7,
+    });
+    
+    const particlesMaterial3 = new THREE.PointsMaterial({
+      size: 0.004,
+      color: '#FF1493',
+      transparent: true,
+      opacity: 0.6,
+    });
 
-    const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
-    scene.add(particlesMesh);
+    // Create three particle systems with different materials
+    const particlesMesh1 = new THREE.Points(particlesGeometry.clone(), particlesMaterial1);
+    const particlesMesh2 = new THREE.Points(particlesGeometry.clone(), particlesMaterial2);
+    const particlesMesh3 = new THREE.Points(particlesGeometry.clone(), particlesMaterial3);
+    
+    scene.add(particlesMesh1);
+    scene.add(particlesMesh2);
+    scene.add(particlesMesh3);
 
     // Create geometric shapes
     const shapes: THREE.Mesh[] = [];
@@ -53,7 +75,7 @@ const ThreeBackground = () => {
       color: '#8B5CF6', 
       wireframe: true, 
       transparent: true, 
-      opacity: 0.3 
+      opacity: 0.4
     });
     const torus = new THREE.Mesh(torusGeometry, torusMaterial);
     torus.position.set(-10, 5, -20);
@@ -63,10 +85,10 @@ const ThreeBackground = () => {
     // Icosahedron
     const icoGeometry = new THREE.IcosahedronGeometry(2, 0);
     const icoMaterial = new THREE.MeshBasicMaterial({ 
-      color: '#00D4FF', 
+      color: '#00FFCC', 
       wireframe: true, 
       transparent: true, 
-      opacity: 0.4 
+      opacity: 0.5
     });
     const icosahedron = new THREE.Mesh(icoGeometry, icoMaterial);
     icosahedron.position.set(15, -8, -25);
@@ -76,31 +98,71 @@ const ThreeBackground = () => {
     // Octahedron
     const octaGeometry = new THREE.OctahedronGeometry(1.5);
     const octaMaterial = new THREE.MeshBasicMaterial({ 
-      color: '#FF6B6B', 
+      color: '#FF1493', 
       wireframe: true, 
       transparent: true, 
-      opacity: 0.3 
+      opacity: 0.4
     });
     const octahedron = new THREE.Mesh(octaGeometry, octaMaterial);
     octahedron.position.set(8, 10, -15);
     scene.add(octahedron);
     shapes.push(octahedron);
+    
+    // Dodecahedron - new shape
+    const dodecaGeometry = new THREE.DodecahedronGeometry(2);
+    const dodecaMaterial = new THREE.MeshBasicMaterial({ 
+      color: '#FFD700', 
+      wireframe: true, 
+      transparent: true, 
+      opacity: 0.3
+    });
+    const dodecahedron = new THREE.Mesh(dodecaGeometry, dodecaMaterial);
+    dodecahedron.position.set(-12, -7, -20);
+    scene.add(dodecahedron);
+    shapes.push(dodecahedron);
 
     camera.position.z = 10;
+
+    // Track mouse movement
+    const updateMousePosition = (e: MouseEvent) => {
+      mousePosition.current = {
+        x: (e.clientX / window.innerWidth) * 2 - 1,
+        y: -(e.clientY / window.innerHeight) * 2 + 1
+      };
+    };
+
+    window.addEventListener('mousemove', updateMousePosition);
 
     // Animation loop
     const animate = () => {
       frameRef.current = requestAnimationFrame(animate);
 
       // Rotate particles
-      particlesMesh.rotation.y += 0.001;
-      particlesMesh.rotation.x += 0.0005;
+      particlesMesh1.rotation.y += 0.0005;
+      particlesMesh1.rotation.x += 0.0002;
+      
+      particlesMesh2.rotation.y -= 0.0003;
+      particlesMesh2.rotation.z += 0.0004;
+      
+      particlesMesh3.rotation.x -= 0.0004;
+      particlesMesh3.rotation.z -= 0.0002;
 
+      // Move particles based on mouse position
+      particlesMesh1.position.x = mousePosition.current.x * 0.5;
+      particlesMesh1.position.y = mousePosition.current.y * 0.5;
+      
       // Animate shapes
       shapes.forEach((shape, index) => {
-        shape.rotation.x += 0.01 * (index + 1);
-        shape.rotation.y += 0.005 * (index + 1);
-        shape.position.y += Math.sin(Date.now() * 0.001 + index) * 0.01;
+        // Different rotation speeds for each shape
+        shape.rotation.x += 0.005 * (index + 1);
+        shape.rotation.y += 0.003 * (index + 1);
+        
+        // More pronounced wave effect
+        shape.position.y += Math.sin(Date.now() * 0.001 + index * 1.5) * 0.01;
+        
+        // Add subtle mouse influence to shape positions
+        shape.position.x += (mousePosition.current.x * 0.01) * (index % 2 ? 1 : -1);
+        shape.position.y += (mousePosition.current.y * 0.01) * (index % 2 ? -1 : 1);
       });
 
       renderer.render(scene, camera);
@@ -119,12 +181,16 @@ const ThreeBackground = () => {
 
     return () => {
       window.removeEventListener('resize', handleResize);
+      window.removeEventListener('mousemove', updateMousePosition);
+      
       if (frameRef.current) {
         cancelAnimationFrame(frameRef.current);
       }
+      
       if (mountRef.current && renderer.domElement) {
         mountRef.current.removeChild(renderer.domElement);
       }
+      
       renderer.dispose();
     };
   }, []);
