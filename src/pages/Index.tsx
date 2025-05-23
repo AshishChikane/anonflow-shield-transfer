@@ -11,7 +11,7 @@ const Index = () => {
   const [isPromptModalOpen, setIsPromptModalOpen] = useState(false);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#070B15] via-[#0A0F1E] to-[#101729] text-white overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-[#0E0B15] via-[#15070E] to-[#1A0913] text-white overflow-hidden">
       <ThreeBackground />
       <div className="flex flex-col min-h-screen">
         <Navbar 
@@ -19,7 +19,8 @@ const Index = () => {
           onPromptClick={() => setIsPromptModalOpen(true)}
         />
         
-        <div className="flex-grow flex items-center justify-center pt-16">
+        {/* Added pt-24 for better spacing from the navbar */}
+        <div className="flex-grow flex items-center justify-center pt-24 md:pt-16">
           <HeroSection 
             onTransferClick={() => setIsTransferModalOpen(true)}
             onPromptClick={() => setIsPromptModalOpen(true)}

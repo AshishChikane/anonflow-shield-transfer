@@ -22,12 +22,12 @@ const ThreeBackground = () => {
     rendererRef.current = renderer;
     
     renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.setClearColor(0x000000, 0);
+    renderer.setClearColor(0x000000, 0); // Transparent background
     mountRef.current.appendChild(renderer.domElement);
 
     // Create floating particles
     const particlesGeometry = new THREE.BufferGeometry();
-    const particlesCount = 200; // Increased particle count
+    const particlesCount = 250; // Increased particle count
     const posArray = new Float32Array(particlesCount * 3);
 
     for (let i = 0; i < particlesCount * 3; i++) {
@@ -36,26 +36,26 @@ const ThreeBackground = () => {
 
     particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
     
-    // Create gradient particles with different colors
+    // Create gradient particles with vibrant colors for better visibility in dark theme
     const particlesMaterial1 = new THREE.PointsMaterial({
+      size: 0.01,
+      color: '#FF0D3D', // Bright red for primary nodes
+      transparent: true,
+      opacity: 0.9,
+    });
+    
+    const particlesMaterial2 = new THREE.PointsMaterial({
       size: 0.008,
-      color: '#1A1FFF', // Blue for blockchain nodes
+      color: '#FF6B00', // Orange for secondary nodes
       transparent: true,
       opacity: 0.8,
     });
     
-    const particlesMaterial2 = new THREE.PointsMaterial({
+    const particlesMaterial3 = new THREE.PointsMaterial({
       size: 0.006,
-      color: '#00FF9D', // Green for success transactions
+      color: '#FFD700', // Gold for tertiary nodes
       transparent: true,
       opacity: 0.7,
-    });
-    
-    const particlesMaterial3 = new THREE.PointsMaterial({
-      size: 0.004,
-      color: '#FF3D71', // Red for failed transactions
-      transparent: true,
-      opacity: 0.6,
     });
 
     // Create three particle systems with different materials
@@ -67,16 +67,16 @@ const ThreeBackground = () => {
     scene.add(particlesMesh2);
     scene.add(particlesMesh3);
 
-    // Create blockchain-themed geometric shapes
+    // Create blockchain-themed geometric shapes with bright colors for dark theme
     const shapes: THREE.Mesh[] = [];
     
     // Blockchain Cube
-    const cubeGeometry = new THREE.BoxGeometry(2, 2, 2);
+    const cubeGeometry = new THREE.BoxGeometry(2.5, 2.5, 2.5);
     const cubeMaterial = new THREE.MeshBasicMaterial({ 
-      color: '#3366FF', 
+      color: '#FF3D71', 
       wireframe: true, 
       transparent: true, 
-      opacity: 0.5
+      opacity: 0.8
     });
     const cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
     cube.position.set(-12, -6, -20);
@@ -84,12 +84,12 @@ const ThreeBackground = () => {
     shapes.push(cube);
     
     // Torus (blockchain ring)
-    const torusGeometry = new THREE.TorusGeometry(3, 0.5, 16, 100);
+    const torusGeometry = new THREE.TorusGeometry(3.5, 0.6, 16, 100);
     const torusMaterial = new THREE.MeshBasicMaterial({ 
-      color: '#00FF9D', 
+      color: '#FF0D3D', 
       wireframe: true, 
       transparent: true, 
-      opacity: 0.4
+      opacity: 0.7
     });
     const torus = new THREE.Mesh(torusGeometry, torusMaterial);
     torus.position.set(-10, 5, -20);
@@ -97,12 +97,12 @@ const ThreeBackground = () => {
     shapes.push(torus);
 
     // Icosahedron (cryptographic structure)
-    const icoGeometry = new THREE.IcosahedronGeometry(2, 0);
+    const icoGeometry = new THREE.IcosahedronGeometry(2.2, 0);
     const icoMaterial = new THREE.MeshBasicMaterial({ 
-      color: '#00CFFF', 
+      color: '#FF6B00', 
       wireframe: true, 
       transparent: true, 
-      opacity: 0.5
+      opacity: 0.8
     });
     const icosahedron = new THREE.Mesh(icoGeometry, icoMaterial);
     icosahedron.position.set(15, -8, -25);
@@ -110,12 +110,12 @@ const ThreeBackground = () => {
     shapes.push(icosahedron);
 
     // Octahedron (token symbol)
-    const octaGeometry = new THREE.OctahedronGeometry(1.5);
+    const octaGeometry = new THREE.OctahedronGeometry(1.8);
     const octaMaterial = new THREE.MeshBasicMaterial({ 
-      color: '#FF3D71', 
+      color: '#FF0D3D', 
       wireframe: true, 
       transparent: true, 
-      opacity: 0.4
+      opacity: 0.7
     });
     const octahedron = new THREE.Mesh(octaGeometry, octaMaterial);
     octahedron.position.set(8, 10, -15);
@@ -123,12 +123,12 @@ const ThreeBackground = () => {
     shapes.push(octahedron);
     
     // Dodecahedron (secure vault)
-    const dodecaGeometry = new THREE.DodecahedronGeometry(2);
+    const dodecaGeometry = new THREE.DodecahedronGeometry(2.5);
     const dodecaMaterial = new THREE.MeshBasicMaterial({ 
-      color: '#FFAA00', 
+      color: '#FFD700', 
       wireframe: true, 
       transparent: true, 
-      opacity: 0.3
+      opacity: 0.6
     });
     const dodecahedron = new THREE.Mesh(dodecaGeometry, dodecaMaterial);
     dodecahedron.position.set(-12, -7, -20);
@@ -136,12 +136,12 @@ const ThreeBackground = () => {
     shapes.push(dodecahedron);
     
     // Tetrahedron (pyramid token growth)
-    const tetraGeometry = new THREE.TetrahedronGeometry(1.8);
+    const tetraGeometry = new THREE.TetrahedronGeometry(2.2);
     const tetraMaterial = new THREE.MeshBasicMaterial({ 
-      color: '#6236FF', 
+      color: '#FF3D71', 
       wireframe: true, 
       transparent: true, 
-      opacity: 0.4
+      opacity: 0.7
     });
     const tetrahedron = new THREE.Mesh(tetraGeometry, tetraMaterial);
     tetrahedron.position.set(14, 7, -18);
@@ -149,17 +149,43 @@ const ThreeBackground = () => {
     shapes.push(tetrahedron);
     
     // Ring (token symbol)
-    const ringGeometry = new THREE.RingGeometry(1, 1.5, 32);
+    const ringGeometry = new THREE.RingGeometry(1.2, 2, 32);
     const ringMaterial = new THREE.MeshBasicMaterial({ 
-      color: '#00D68F', 
+      color: '#FF6B00', 
       wireframe: true, 
       transparent: true, 
-      opacity: 0.5
+      opacity: 0.8
     });
     const ring = new THREE.Mesh(ringGeometry, ringMaterial);
     ring.position.set(-5, -12, -15);
     scene.add(ring);
     shapes.push(ring);
+
+    // Add new sphere (blockchain node)
+    const sphereGeometry = new THREE.SphereGeometry(1.5, 32, 32);
+    const sphereMaterial = new THREE.MeshBasicMaterial({
+      color: '#FF3D71',
+      wireframe: true,
+      transparent: true,
+      opacity: 0.7
+    });
+    const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
+    sphere.position.set(0, 0, -25);
+    scene.add(sphere);
+    shapes.push(sphere);
+
+    // Add new torus knot (complex crypto algorithm)
+    const torusKnotGeometry = new THREE.TorusKnotGeometry(1, 0.4, 64, 8);
+    const torusKnotMaterial = new THREE.MeshBasicMaterial({
+      color: '#FFD700',
+      wireframe: true,
+      transparent: true,
+      opacity: 0.7
+    });
+    const torusKnot = new THREE.Mesh(torusKnotGeometry, torusKnotMaterial);
+    torusKnot.position.set(-8, 8, -20);
+    scene.add(torusKnot);
+    shapes.push(torusKnot);
 
     camera.position.z = 10;
 
@@ -201,37 +227,37 @@ const ThreeBackground = () => {
       frameRef.current = requestAnimationFrame(animate);
 
       // Rotate particles
-      particlesMesh1.rotation.y += 0.0005;
-      particlesMesh1.rotation.x += 0.0002;
+      particlesMesh1.rotation.y += 0.0007;
+      particlesMesh1.rotation.x += 0.0003;
       
-      particlesMesh2.rotation.y -= 0.0003;
-      particlesMesh2.rotation.z += 0.0004;
+      particlesMesh2.rotation.y -= 0.0005;
+      particlesMesh2.rotation.z += 0.0006;
       
-      particlesMesh3.rotation.x -= 0.0004;
-      particlesMesh3.rotation.z -= 0.0002;
+      particlesMesh3.rotation.x -= 0.0006;
+      particlesMesh3.rotation.z -= 0.0004;
 
       // React to mouse movement - particles follow mouse with delay
-      particlesMesh1.position.x += (mousePosition.current.x * 2 - particlesMesh1.position.x) * 0.02;
-      particlesMesh1.position.y += (mousePosition.current.y * 2 - particlesMesh1.position.y) * 0.02;
+      particlesMesh1.position.x += (mousePosition.current.x * 2.5 - particlesMesh1.position.x) * 0.03;
+      particlesMesh1.position.y += (mousePosition.current.y * 2.5 - particlesMesh1.position.y) * 0.03;
       
-      particlesMesh2.position.x += (mousePosition.current.x * -1.5 - particlesMesh2.position.x) * 0.01;
-      particlesMesh2.position.y += (mousePosition.current.y * -1.5 - particlesMesh2.position.y) * 0.01;
+      particlesMesh2.position.x += (mousePosition.current.x * -2 - particlesMesh2.position.x) * 0.02;
+      particlesMesh2.position.y += (mousePosition.current.y * -2 - particlesMesh2.position.y) * 0.02;
       
-      particlesMesh3.position.x += (mousePosition.current.x * 1 - particlesMesh3.position.x) * 0.03;
-      particlesMesh3.position.y += (mousePosition.current.y * 1 - particlesMesh3.position.y) * 0.03;
+      particlesMesh3.position.x += (mousePosition.current.x * 1.5 - particlesMesh3.position.x) * 0.04;
+      particlesMesh3.position.y += (mousePosition.current.y * 1.5 - particlesMesh3.position.y) * 0.04;
       
       // Animate shapes
       shapes.forEach((shape, index) => {
         // Different rotation speeds for each shape
-        shape.rotation.x += 0.005 * (index % 3 + 1);
-        shape.rotation.y += 0.003 * (index % 4 + 1);
+        shape.rotation.x += 0.006 * (index % 3 + 1);
+        shape.rotation.y += 0.004 * (index % 4 + 1);
         
         // More pronounced wave effect
-        shape.position.y += Math.sin(Date.now() * 0.001 + index * 1.5) * 0.01;
+        shape.position.y += Math.sin(Date.now() * 0.001 + index * 1.5) * 0.015;
         
         // Add subtle mouse influence to shape positions
-        shape.position.x += (mouseSpeed.current.x * 0.05) * (index % 2 ? 1 : -1);
-        shape.position.y += (mouseSpeed.current.y * 0.05) * (index % 2 ? -1 : 1);
+        shape.position.x += (mouseSpeed.current.x * 0.08) * (index % 2 ? 1 : -1);
+        shape.position.y += (mouseSpeed.current.y * 0.08) * (index % 2 ? -1 : 1);
       });
 
       renderer.render(scene, camera);

@@ -42,17 +42,17 @@ const Navbar = ({ onTransferClick, onPromptClick }: { onTransferClick: () => voi
   return (
     <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
       isScrolled ? 'bg-slate-950/90' : 'bg-transparent'
-    } backdrop-blur-xl border-b border-fuchsia-500/20`}>
+    } backdrop-blur-xl border-b border-red-500/20`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4">
         <div className="flex items-center justify-between">
           {/* Logo */}
           <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-cyan-400 to-fuchsia-600 rounded-lg flex items-center justify-center shadow-lg shadow-fuchsia-500/20 hover:shadow-fuchsia-500/40 transition-all duration-300 hover:scale-105">
+            <div className="w-10 h-10 bg-gradient-to-br from-red-500 to-amber-500 rounded-lg flex items-center justify-center shadow-lg shadow-red-500/20 hover:shadow-red-500/40 transition-all duration-300 hover:scale-105">
               <Shield className="w-6 h-6 text-white" />
             </div>
             <div>
               <h1 className="text-xl font-bold text-white">PrivateFlow</h1>
-              <p className="text-xs text-cyan-400">Multi-Token Transfer Platform</p>
+              <p className="text-xs text-red-400">Multi-Token Transfer Platform</p>
             </div>
           </div>
           
@@ -61,7 +61,7 @@ const Navbar = ({ onTransferClick, onPromptClick }: { onTransferClick: () => voi
             <Button
               onClick={onPromptClick}
               variant="outline"
-              className="border-fuchsia-500/50 text-fuchsia-300 hover:bg-fuchsia-500/10 hover:border-fuchsia-400 shadow-sm shadow-fuchsia-500/10 transition-all duration-300 hover:scale-105"
+              className="border-amber-500/50 text-amber-300 hover:bg-amber-500/10 hover:border-amber-400 shadow-sm shadow-amber-500/10 transition-all duration-300 hover:scale-105"
             >
               <Zap className="w-4 h-4 mr-2" />
               AI Prompt
@@ -69,7 +69,7 @@ const Navbar = ({ onTransferClick, onPromptClick }: { onTransferClick: () => voi
             
             <Button
               onClick={onTransferClick}
-              className="bg-gradient-to-r from-cyan-500 to-fuchsia-600 hover:from-cyan-600 hover:to-fuchsia-700 text-white shadow-lg shadow-fuchsia-500/25 hover:shadow-fuchsia-500/40 transition-all duration-300 hover:scale-105"
+              className="bg-gradient-to-r from-red-600 to-amber-500 hover:from-red-500 hover:to-amber-400 text-white shadow-lg shadow-red-500/25 hover:shadow-red-500/40 transition-all duration-300 hover:scale-105"
             >
               Multi-Transfer
             </Button>
@@ -78,7 +78,7 @@ const Navbar = ({ onTransferClick, onPromptClick }: { onTransferClick: () => voi
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button
-                    className="bg-slate-800 border border-cyan-500/50 text-cyan-300 hover:bg-cyan-500/10 hover:border-cyan-400 shadow-md shadow-slate-900/60 transition-all duration-300 hover:scale-105"
+                    className="bg-slate-800 border border-red-500/50 text-red-300 hover:bg-red-500/10 hover:border-red-400 shadow-md shadow-slate-900/60 transition-all duration-300 hover:scale-105"
                   >
                     <Wallet className="w-4 h-4 mr-2" />
                     Connect Wallet
@@ -86,32 +86,32 @@ const Navbar = ({ onTransferClick, onPromptClick }: { onTransferClick: () => voi
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent 
-                  className="bg-slate-900 border border-cyan-500/30 text-white shadow-xl shadow-cyan-500/10 animate-in fade-in-80 w-48"
+                  className="bg-slate-900 border border-red-500/30 text-white shadow-xl shadow-red-500/10 animate-in fade-in-80 w-48"
                 >
                   <DropdownMenuItem 
                     onClick={() => connectWallet('MetaMask')}
-                    className="hover:bg-slate-800 cursor-pointer flex items-center hover:text-cyan-300 transition-colors"
+                    className="hover:bg-slate-800 cursor-pointer flex items-center hover:text-red-300 transition-colors"
                   >
                     <img src="https://upload.wikimedia.org/wikipedia/commons/3/36/MetaMask_Fox.svg" alt="MetaMask" className="w-5 h-5 mr-2" />
                     MetaMask
                   </DropdownMenuItem>
                   <DropdownMenuItem 
                     onClick={() => connectWallet('Core')}
-                    className="hover:bg-slate-800 cursor-pointer flex items-center hover:text-cyan-300 transition-colors"
+                    className="hover:bg-slate-800 cursor-pointer flex items-center hover:text-red-300 transition-colors"
                   >
                     <Shield className="w-5 h-5 mr-2 text-blue-400" />
                     Core Wallet
                   </DropdownMenuItem>
                   <DropdownMenuItem 
                     onClick={() => connectWallet('Trust')}
-                    className="hover:bg-slate-800 cursor-pointer flex items-center hover:text-cyan-300 transition-colors"
+                    className="hover:bg-slate-800 cursor-pointer flex items-center hover:text-red-300 transition-colors"
                   >
                     <Shield className="w-5 h-5 mr-2 text-green-400" />
                     Trust Wallet
                   </DropdownMenuItem>
                   <DropdownMenuItem 
                     onClick={() => connectWallet('Other')}
-                    className="hover:bg-slate-800 cursor-pointer flex items-center hover:text-cyan-300 transition-colors"
+                    className="hover:bg-slate-800 cursor-pointer flex items-center hover:text-red-300 transition-colors"
                   >
                     <ExternalLink className="w-5 h-5 mr-2 text-gray-400" />
                     Other Wallet
@@ -150,7 +150,7 @@ const Navbar = ({ onTransferClick, onPromptClick }: { onTransferClick: () => voi
 
       {/* Mobile menu */}
       {isMobileMenuOpen && (
-        <div className="md:hidden bg-slate-900/95 backdrop-blur-lg border-t border-fuchsia-500/20 animate-in slide-in-from-top duration-300">
+        <div className="md:hidden bg-slate-900/95 backdrop-blur-lg border-t border-red-500/20 animate-in slide-in-from-top duration-300">
           <div className="px-4 pt-2 pb-4 space-y-3">
             <Button
               onClick={() => {
@@ -158,7 +158,7 @@ const Navbar = ({ onTransferClick, onPromptClick }: { onTransferClick: () => voi
                 setIsMobileMenuOpen(false);
               }}
               variant="outline"
-              className="w-full border-fuchsia-500/50 text-fuchsia-300 hover:bg-fuchsia-500/10 hover:border-fuchsia-400 justify-start"
+              className="w-full border-amber-500/50 text-amber-300 hover:bg-amber-500/10 hover:border-amber-400 justify-start"
             >
               <Zap className="w-4 h-4 mr-2" />
               AI Prompt
@@ -169,7 +169,7 @@ const Navbar = ({ onTransferClick, onPromptClick }: { onTransferClick: () => voi
                 onTransferClick();
                 setIsMobileMenuOpen(false);
               }}
-              className="w-full bg-gradient-to-r from-cyan-500 to-fuchsia-600 hover:from-cyan-600 hover:to-fuchsia-700 text-white justify-start"
+              className="w-full bg-gradient-to-r from-red-600 to-amber-500 hover:from-red-500 hover:to-amber-400 text-white justify-start"
             >
               Multi-Transfer
             </Button>
@@ -180,7 +180,7 @@ const Navbar = ({ onTransferClick, onPromptClick }: { onTransferClick: () => voi
                 <Button
                   onClick={() => connectWallet('MetaMask')}
                   variant="outline"
-                  className="w-full justify-start hover:bg-slate-800 text-white hover:text-cyan-300"
+                  className="w-full justify-start hover:bg-slate-800 text-white hover:text-red-300"
                 >
                   <img src="https://upload.wikimedia.org/wikipedia/commons/3/36/MetaMask_Fox.svg" alt="MetaMask" className="w-5 h-5 mr-2" />
                   MetaMask
@@ -189,7 +189,7 @@ const Navbar = ({ onTransferClick, onPromptClick }: { onTransferClick: () => voi
                 <Button
                   onClick={() => connectWallet('Core')}
                   variant="outline"
-                  className="w-full justify-start hover:bg-slate-800 text-white hover:text-cyan-300"
+                  className="w-full justify-start hover:bg-slate-800 text-white hover:text-red-300"
                 >
                   <Shield className="w-5 h-5 mr-2 text-blue-400" />
                   Core Wallet
@@ -198,7 +198,7 @@ const Navbar = ({ onTransferClick, onPromptClick }: { onTransferClick: () => voi
                 <Button
                   onClick={() => connectWallet('Trust')}
                   variant="outline"
-                  className="w-full justify-start hover:bg-slate-800 text-white hover:text-cyan-300"
+                  className="w-full justify-start hover:bg-slate-800 text-white hover:text-red-300"
                 >
                   <Shield className="w-5 h-5 mr-2 text-green-400" />
                   Trust Wallet
@@ -207,7 +207,7 @@ const Navbar = ({ onTransferClick, onPromptClick }: { onTransferClick: () => voi
                 <Button
                   onClick={() => connectWallet('Other')}
                   variant="outline"
-                  className="w-full justify-start hover:bg-slate-800 text-white hover:text-cyan-300"
+                  className="w-full justify-start hover:bg-slate-800 text-white hover:text-red-300"
                 >
                   <ExternalLink className="w-5 h-5 mr-2 text-gray-400" />
                   Other Wallet

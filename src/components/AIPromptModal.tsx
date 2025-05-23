@@ -42,10 +42,10 @@ const AIPromptModal: React.FC<AIPromptModalProps> = ({ isOpen, onClose }) => {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl bg-[#0A0F1E] border-[#6236FF]/30 text-white rounded-xl shadow-[0_0_50px_rgba(98,54,255,0.15)] backdrop-blur-sm transition-all duration-300 hover:shadow-[0_0_60px_rgba(98,54,255,0.25)]">
-        <DialogHeader className="pb-4 border-b border-[#1E293B]">
-          <DialogTitle className="flex items-center text-xl font-bold text-gradient bg-gradient-to-r from-[#6236FF] to-[#00CFFF] bg-clip-text text-transparent">
-            <Sparkles className="w-6 h-6 mr-2 text-[#6236FF]" />
+      <DialogContent className="max-w-2xl bg-[#0E0B15] border-[#FF6B00]/30 text-white rounded-xl shadow-[0_0_50px_rgba(255,13,61,0.15)] backdrop-blur-sm transition-all duration-300 hover:shadow-[0_0_60px_rgba(255,13,61,0.25)] animate-in zoom-in-95 slide-in-from-bottom-5">
+        <DialogHeader className="pb-4 border-b border-[#2E1E23]">
+          <DialogTitle className="flex items-center text-xl font-bold text-gradient bg-gradient-to-r from-[#FF0D3D] to-[#FFD700] bg-clip-text text-transparent">
+            <Sparkles className="w-6 h-6 mr-2 text-[#FF6B00]" />
             AI-Powered Transfer Assistant
           </DialogTitle>
         </DialogHeader>
@@ -59,7 +59,7 @@ const AIPromptModal: React.FC<AIPromptModalProps> = ({ isOpen, onClose }) => {
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
               placeholder="e.g., Send 5 AVAX to Alice and 3 ETH to Bob..."
-              className="min-h-[100px] bg-[#131C31] border-[#1E293B] text-white placeholder-[#64748B] focus:border-[#6236FF] focus:ring-[#6236FF]/20 transition-all duration-300"
+              className="min-h-[100px] bg-[#15070E] border-[#2E1E23] text-white placeholder-[#64748B] focus:border-[#FF0D3D] focus:ring-[#FF0D3D]/20 transition-all duration-300 hover:border-[#FF6B00]/50"
             />
           </div>
 
@@ -70,7 +70,7 @@ const AIPromptModal: React.FC<AIPromptModalProps> = ({ isOpen, onClose }) => {
                 <button
                   key={index}
                   onClick={() => setPrompt(example)}
-                  className="block w-full text-left p-3 bg-[#131C31] hover:bg-[#1A1F2E] rounded-lg border border-[#1E293B] hover:border-[#6236FF]/50 text-sm text-[#CBD5E1] transition-all duration-300 hover:shadow-[0_0_15px_rgba(98,54,255,0.15)]"
+                  className="block w-full text-left p-3 bg-[#15070E] hover:bg-[#1A0913] rounded-lg border border-[#2E1E23] hover:border-[#FF0D3D]/50 text-sm text-[#CBD5E1] transition-all duration-300 hover:shadow-[0_0_15px_rgba(255,13,61,0.15)] hover:translate-x-1"
                 >
                   {example}
                 </button>
@@ -79,33 +79,33 @@ const AIPromptModal: React.FC<AIPromptModalProps> = ({ isOpen, onClose }) => {
           </div>
 
           {parsedData && (
-            <div className="bg-[#0F172A] rounded-xl p-5 border border-[#6236FF]/20 shadow-inner transition-all duration-300 hover:border-[#6236FF]/40 hover:shadow-[0_0_15px_rgba(98,54,255,0.15)]">
+            <div className="bg-[#1A0913] rounded-xl p-5 border border-[#FF0D3D]/20 shadow-inner transition-all duration-300 hover:border-[#FF0D3D]/40 hover:shadow-[0_0_15px_rgba(255,13,61,0.15)]">
               <div className="flex items-center mb-4">
-                <CheckCircle className="w-5 h-5 text-[#00D68F] mr-2" />
-                <span className="text-[#00D68F] font-medium">Prompt Parsed Successfully</span>
+                <CheckCircle className="w-5 h-5 text-[#FF6B00] mr-2" />
+                <span className="text-[#FF6B00] font-medium">Prompt Parsed Successfully</span>
               </div>
               
               <div className="space-y-4">
                 <div>
-                  <h4 className="text-[#00CFFF] font-medium mb-3">Recipients ({parsedData.recipients.length})</h4>
+                  <h4 className="text-[#FFD700] font-medium mb-3">Recipients ({parsedData.recipients.length})</h4>
                   {parsedData.recipients.map((recipient: any, index: number) => (
-                    <div key={index} className="flex justify-between items-center py-3 border-b border-[#1E293B] last:border-b-0">
+                    <div key={index} className="flex justify-between items-center py-3 border-b border-[#2E1E23] last:border-b-0">
                       <div className="flex items-center">
-                        <div className="w-8 h-8 rounded-lg bg-gradient-to-r from-[#131C31] to-[#1A1F2E] flex items-center justify-center text-[#94A3B8] font-mono text-xs border border-[#1E293B] mr-3">
+                        <div className="w-8 h-8 rounded-lg bg-gradient-to-r from-[#15070E] to-[#1A0913] flex items-center justify-center text-[#94A3B8] font-mono text-xs border border-[#2E1E23] mr-3">
                           {index + 1}
                         </div>
                         <div className="flex flex-col">
                           <span className="font-mono text-sm text-[#94A3B8]">{recipient.address.slice(0, 10)}...</span>
                           <div className="flex items-center mt-1">
-                            <div className="w-4 h-4 rounded-full bg-gradient-to-r from-[#3366FF] to-[#00CFFF] mr-1 flex items-center justify-center text-[6px] font-bold">
+                            <div className="w-4 h-4 rounded-full bg-gradient-to-r from-[#FF0D3D] to-[#FF6B00] mr-1 flex items-center justify-center text-[6px] font-bold">
                               {recipient.token.charAt(0)}
                             </div>
                             <span className="text-white font-medium">{recipient.amount} {recipient.token}</span>
                           </div>
                         </div>
                       </div>
-                      <div className="bg-[#1A1F2E] px-3 py-1 rounded-lg border border-[#1E293B]">
-                        <span className="text-[#00D68F] font-medium flex items-center text-sm">
+                      <div className="bg-[#15070E] px-3 py-1 rounded-lg border border-[#2E1E23]">
+                        <span className="text-[#FF6B00] font-medium flex items-center text-sm">
                           <CheckCircle className="w-3 h-3 mr-1" />
                           Verified
                         </span>
@@ -114,15 +114,15 @@ const AIPromptModal: React.FC<AIPromptModalProps> = ({ isOpen, onClose }) => {
                   ))}
                 </div>
                 
-                <div className="bg-[#131C31] rounded-lg p-3 border border-[#1E293B]">
+                <div className="bg-[#15070E] rounded-lg p-3 border border-[#2E1E23]">
                   <div className="flex justify-between items-center">
                     <span className="text-[#94A3B8]">Total Value:</span>
                     <span className="text-white font-bold">{parsedData.totalValue}</span>
                   </div>
                   
-                  <div className="flex justify-between items-center mt-2 pt-2 border-t border-[#1E293B]">
+                  <div className="flex justify-between items-center mt-2 pt-2 border-t border-[#2E1E23]">
                     <span className="text-[#94A3B8]">AML Status:</span>
-                    <span className="text-[#00D68F] font-medium flex items-center">
+                    <span className="text-[#FF6B00] font-medium flex items-center">
                       <CheckCircle className="w-4 h-4 mr-1" />
                       Verified
                     </span>
@@ -132,11 +132,11 @@ const AIPromptModal: React.FC<AIPromptModalProps> = ({ isOpen, onClose }) => {
             </div>
           )}
 
-          <div className="flex flex-col sm:flex-row gap-3 pt-3 border-t border-[#1E293B]">
+          <div className="flex flex-col sm:flex-row gap-3 pt-3 border-t border-[#2E1E23]">
             <Button
               onClick={processPrompt}
               disabled={!prompt.trim() || isProcessing}
-              className="flex-1 bg-gradient-to-r from-[#6236FF] to-[#00CFFF] hover:from-[#7347FF] hover:to-[#00E0FF] disabled:from-[#64748B] disabled:to-[#475569] text-white font-medium transition-all duration-300 shadow-[0_0_15px_rgba(98,54,255,0.3)] hover:shadow-[0_0_25px_rgba(98,54,255,0.5)]"
+              className="flex-1 bg-gradient-to-r from-[#FF0D3D] to-[#FF6B00] hover:from-[#FF3D71] hover:to-[#FF9040] disabled:from-[#64748B] disabled:to-[#475569] text-white font-medium transition-all duration-300 shadow-[0_0_15px_rgba(255,13,61,0.3)] hover:shadow-[0_0_25px_rgba(255,13,61,0.5)] hover:scale-105"
             >
               {isProcessing ? (
                 <>
@@ -154,7 +154,7 @@ const AIPromptModal: React.FC<AIPromptModalProps> = ({ isOpen, onClose }) => {
             {parsedData && (
               <Button
                 onClick={onClose}
-                className="bg-gradient-to-r from-[#00D68F] to-[#00B97C] hover:from-[#00F49F] hover:to-[#00D68F] text-white font-medium transition-all duration-300 shadow-[0_0_15px_rgba(0,214,143,0.3)] hover:shadow-[0_0_25px_rgba(0,214,143,0.5)]"
+                className="bg-gradient-to-r from-[#FF6B00] to-[#FFD700] hover:from-[#FF9040] hover:to-[#FFEC80] text-white font-medium transition-all duration-300 shadow-[0_0_15px_rgba(255,107,0,0.3)] hover:shadow-[0_0_25px_rgba(255,107,0,0.5)] hover:scale-105"
               >
                 <Zap className="w-4 h-4 mr-2" />
                 Execute Transfer
