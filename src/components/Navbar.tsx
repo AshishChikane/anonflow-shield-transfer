@@ -1,234 +1,149 @@
+import { useState, useEffect } from "react";
+import {
+  Wallet,
+  Shield,
+  ChevronDown,
+  Menu,
+  X,
+  LogOut,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from "@/components/ui/dropdown-menu";
 
-import React, { useState, useEffect } from 'react';
-import { Wallet, Shield, Zap, ExternalLink, ChevronDown, Menu, X } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { 
-  DropdownMenu, 
-  DropdownMenuContent, 
-  DropdownMenuItem, 
-  DropdownMenuTrigger 
-} from '@/components/ui/dropdown-menu';
+declare global {
+  interface Window {
+    ethereum?: any;
+  }
+}
 
-const Navbar = ({ onTransferClick, onPromptClick }: { onTransferClick: () => void, onPromptClick: () => void }) => {
+export default function Navbar({
+  onTransferClick,
+  onPromptClick,
+}: {
+  onTransferClick: () => void;
+  onPromptClick: () => void;
+}) {
   const [isWalletConnected, setIsWalletConnected] = useState(false);
-  const [walletAddress, setWalletAddress] = useState('');
-  const [walletType, setWalletType] = useState('');
+  const [walletAddress, setWalletAddress] = useState("");
+  const [walletAddresses, setWalletAddresses] = useState<string[]>([]);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
 
-  // Handle scroll effect for navbar
   useEffect(() => {
-    const handleScroll = () => {
-      if (window.scrollY > 10) {
-        setIsScrolled(true);
-      } else {
-        setIsScrolled(false);
-      }
-    };
-
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    const handleScroll = () => setIsScrolled(window.scrollY > 10);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const connectWallet = async (type: string) => {
-    // Simulate wallet connection
-    setIsWalletConnected(true);
-    setWalletAddress('0x742d...35Cb');
-    setWalletType(type);
-    // Close mobile menu after connection
-    setIsMobileMenuOpen(false);
+  const connectWallet = async () => {
+    if (!window.ethereum) {
+      alert("Please install MetaMask or a compatible wallet.");
+      return;
+    }
+
+    try {
+      const accounts: string[] = await window.ethereum.request({
+        method: "eth_requestAccounts",
+      });
+
+      if (accounts.length > 0) {
+        setIsWalletConnected(true);
+        setWalletAddresses(accounts);
+        setWalletAddress(accounts[0]);
+      }
+    } catch (error) {
+      console.error("Connection error:", error);
+    }
   };
 
+  const disconnectWallet = () => {
+    setIsWalletConnected(false);
+    setWalletAddress("");
+    setWalletAddresses([]);
+  };
+
+  const handleAddressSwitch = (addr: string) => {
+    setWalletAddress(addr);
+  };
+
+  const shortAddress = (addr: string) =>
+    `${addr.slice(0, 6)}...${addr.slice(-4)}`;
+
   return (
-    <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-      isScrolled ? 'bg-slate-950/90' : 'bg-transparent'
-    } backdrop-blur-xl border-b border-fuchsia-500/20`}>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4">
+    <nav
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+        isScrolled ? "bg-slate-900/90" : "bg-transparent"
+      } backdrop-blur-lg border-b border-purple-500/30`}
+    >
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3">
         <div className="flex items-center justify-between">
-          {/* Logo */}
+          {/* Branding */}
           <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-cyan-400 to-fuchsia-600 rounded-lg flex items-center justify-center shadow-lg shadow-fuchsia-500/20 hover:shadow-fuchsia-500/40 transition-all duration-300 hover:scale-105">
-              <Shield className="w-6 h-6 text-white" />
+            <div className="w-8 h-8 bg-gradient-to-br from-cyan-400 to-[#8A2BE2] rounded-xl flex items-center justify-center shadow-lg shadow-[#8A2BE2]/30">
+              <Shield className="w-5 h-5 text-white" />
             </div>
             <div>
-              <h1 className="text-xl font-bold text-white">PrivateFlow</h1>
-              <p className="text-xs text-cyan-400">Multi-Token Transfer Platform</p>
+              <h1 className="text-lg font-bold text-white">Privora</h1>
+              <p className="text-xs text-cyan-400">Token Transfer Platform</p>
             </div>
           </div>
-          
-          {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-4">
-            <Button
-              onClick={onPromptClick}
-              variant="outline"
-              className="border-fuchsia-500/50 text-fuchsia-300 hover:bg-fuchsia-500/10 hover:border-fuchsia-400 shadow-sm shadow-fuchsia-500/10 transition-all duration-300 hover:scale-105"
-            >
-              <Zap className="w-4 h-4 mr-2" />
-              AI Prompt
-            </Button>
-            
-            <Button
-              onClick={onTransferClick}
-              className="bg-gradient-to-r from-cyan-500 to-fuchsia-600 hover:from-cyan-600 hover:to-fuchsia-700 text-white shadow-lg shadow-fuchsia-500/25 hover:shadow-fuchsia-500/40 transition-all duration-300 hover:scale-105"
-            >
-              Multi-Transfer
-            </Button>
-            
+
+          <div className="hidden md:flex items-center space-x-3">
             {!isWalletConnected ? (
+              <Button
+                onClick={connectWallet}
+                size="sm"
+                className="px-6 py-5 text-md font-semibold bg-gradient-to-r from-cyan-500 to-[#8A2BE2] text-white rounded-full"
+              >
+                <Wallet className="w-4 h-4 mr-2" />
+                Connect Wallet
+              </Button>
+            ) : (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button
-                    className="bg-slate-800 border border-cyan-500/50 text-cyan-300 hover:bg-cyan-500/10 hover:border-cyan-400 shadow-md shadow-slate-900/60 transition-all duration-300 hover:scale-105"
-                  >
-                    <Wallet className="w-4 h-4 mr-2" />
-                    Connect Wallet
+                  <Button variant="ghost" className="text-white">
+                    {shortAddress(walletAddress)}
                     <ChevronDown className="ml-2 h-4 w-4" />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent 
-                  className="bg-slate-900 border border-cyan-500/30 text-white shadow-xl shadow-cyan-500/10 animate-in fade-in-80 w-48"
-                >
-                  <DropdownMenuItem 
-                    onClick={() => connectWallet('MetaMask')}
-                    className="hover:bg-slate-800 cursor-pointer flex items-center hover:text-cyan-300 transition-colors"
-                  >
-                    <img src="https://upload.wikimedia.org/wikipedia/commons/3/36/MetaMask_Fox.svg" alt="MetaMask" className="w-5 h-5 mr-2" />
-                    MetaMask
-                  </DropdownMenuItem>
-                  <DropdownMenuItem 
-                    onClick={() => connectWallet('Core')}
-                    className="hover:bg-slate-800 cursor-pointer flex items-center hover:text-cyan-300 transition-colors"
-                  >
-                    <Shield className="w-5 h-5 mr-2 text-blue-400" />
-                    Core Wallet
-                  </DropdownMenuItem>
-                  <DropdownMenuItem 
-                    onClick={() => connectWallet('Trust')}
-                    className="hover:bg-slate-800 cursor-pointer flex items-center hover:text-cyan-300 transition-colors"
-                  >
-                    <Shield className="w-5 h-5 mr-2 text-green-400" />
-                    Trust Wallet
-                  </DropdownMenuItem>
-                  <DropdownMenuItem 
-                    onClick={() => connectWallet('Other')}
-                    className="hover:bg-slate-800 cursor-pointer flex items-center hover:text-cyan-300 transition-colors"
-                  >
-                    <ExternalLink className="w-5 h-5 mr-2 text-gray-400" />
-                    Other Wallet
+                <DropdownMenuContent align="end">
+                  {walletAddresses.map((addr) => (
+                    <DropdownMenuItem
+                      key={addr}
+                      onClick={() => handleAddressSwitch(addr)}
+                    >
+                      {shortAddress(addr)}
+                    </DropdownMenuItem>
+                  ))}
+                  <DropdownMenuItem onClick={disconnectWallet}>
+                    <LogOut className="mr-2 h-4 w-4" />
+                    Disconnect
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
-            ) : (
-              <div className="flex items-center space-x-2 px-3 py-2 bg-green-900/30 border border-green-500/50 rounded-lg shadow-inner shadow-green-500/10 transition-all duration-300 hover:border-green-500/70">
-                {walletType === 'MetaMask' && 
-                  <img src="https://upload.wikimedia.org/wikipedia/commons/3/36/MetaMask_Fox.svg" alt="MetaMask" className="w-4 h-4" />
-                }
-                {walletType !== 'MetaMask' && 
-                  <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                }
-                <span className="text-green-300 text-sm font-mono">{walletAddress}</span>
-              </div>
             )}
           </div>
-          
-          {/* Mobile menu button */}
+
           <div className="md:hidden">
             <Button
               variant="ghost"
-              className="text-white hover:bg-slate-800/50"
+              className="text-white hover:bg-slate-800/50 p-2"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             >
               {isMobileMenuOpen ? (
-                <X className="w-6 h-6" />
+                <X className="w-5 h-5" />
               ) : (
-                <Menu className="w-6 h-6" />
+                <Menu className="w-5 h-5" />
               )}
             </Button>
           </div>
         </div>
       </div>
-
-      {/* Mobile menu */}
-      {isMobileMenuOpen && (
-        <div className="md:hidden bg-slate-900/95 backdrop-blur-lg border-t border-fuchsia-500/20 animate-in slide-in-from-top duration-300">
-          <div className="px-4 pt-2 pb-4 space-y-3">
-            <Button
-              onClick={() => {
-                onPromptClick();
-                setIsMobileMenuOpen(false);
-              }}
-              variant="outline"
-              className="w-full border-fuchsia-500/50 text-fuchsia-300 hover:bg-fuchsia-500/10 hover:border-fuchsia-400 justify-start"
-            >
-              <Zap className="w-4 h-4 mr-2" />
-              AI Prompt
-            </Button>
-            
-            <Button
-              onClick={() => {
-                onTransferClick();
-                setIsMobileMenuOpen(false);
-              }}
-              className="w-full bg-gradient-to-r from-cyan-500 to-fuchsia-600 hover:from-cyan-600 hover:to-fuchsia-700 text-white justify-start"
-            >
-              Multi-Transfer
-            </Button>
-            
-            {!isWalletConnected ? (
-              <div className="space-y-2 pt-2 border-t border-slate-700/50">
-                <p className="text-sm text-gray-400 px-1">Connect wallet:</p>
-                <Button
-                  onClick={() => connectWallet('MetaMask')}
-                  variant="outline"
-                  className="w-full justify-start hover:bg-slate-800 text-white hover:text-cyan-300"
-                >
-                  <img src="https://upload.wikimedia.org/wikipedia/commons/3/36/MetaMask_Fox.svg" alt="MetaMask" className="w-5 h-5 mr-2" />
-                  MetaMask
-                </Button>
-                
-                <Button
-                  onClick={() => connectWallet('Core')}
-                  variant="outline"
-                  className="w-full justify-start hover:bg-slate-800 text-white hover:text-cyan-300"
-                >
-                  <Shield className="w-5 h-5 mr-2 text-blue-400" />
-                  Core Wallet
-                </Button>
-                
-                <Button
-                  onClick={() => connectWallet('Trust')}
-                  variant="outline"
-                  className="w-full justify-start hover:bg-slate-800 text-white hover:text-cyan-300"
-                >
-                  <Shield className="w-5 h-5 mr-2 text-green-400" />
-                  Trust Wallet
-                </Button>
-                
-                <Button
-                  onClick={() => connectWallet('Other')}
-                  variant="outline"
-                  className="w-full justify-start hover:bg-slate-800 text-white hover:text-cyan-300"
-                >
-                  <ExternalLink className="w-5 h-5 mr-2 text-gray-400" />
-                  Other Wallet
-                </Button>
-              </div>
-            ) : (
-              <div className="flex items-center space-x-2 px-3 py-3 bg-green-900/30 border border-green-500/50 rounded-lg">
-                {walletType === 'MetaMask' && 
-                  <img src="https://upload.wikimedia.org/wikipedia/commons/3/36/MetaMask_Fox.svg" alt="MetaMask" className="w-4 h-4" />
-                }
-                {walletType !== 'MetaMask' && 
-                  <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                }
-                <span className="text-green-300 text-sm font-mono">{walletAddress}</span>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
     </nav>
   );
-};
-
-export default Navbar;
+}

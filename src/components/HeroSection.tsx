@@ -1,79 +1,72 @@
-
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Shield, Zap, Users, Eye, ArrowRight } from 'lucide-react';
 
 interface HeroSectionProps {
   onTransferClick: () => void;
-  onPromptClick: () => void;
 }
 
-const HeroSection: React.FC<HeroSectionProps> = ({ onTransferClick, onPromptClick }) => {
+const HeroSection: React.FC<HeroSectionProps> = ({ onTransferClick }) => {
   return (
-    <div className="w-full px-4 sm:px-6 md:px-8 py-12 sm:py-16 md:py-20">
-      <div className="relative z-10 text-center max-w-4xl mx-auto">
-        <div className="mb-8 sm:mb-12">
-          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold bg-gradient-to-r from-cyan-400 via-fuchsia-500 to-pink-400 bg-clip-text text-transparent mb-6 leading-tight transition-all duration-300">
-            Private Multi-Token
-            <br />
-            Transfers
+    <section className="w-full px-4 sm:px-6 md:px-8 py-24 sm:py-32 md:py-40 bg-slate-900/40 backdrop-blur-lg text-white overflow-hidden relative rounded-xl">
+      <div className="relative z-10 text-center max-w-5xl mx-auto animate-fade-in-up animation-delay-600">
+        <div className="mb-16">
+          <h1 className="text-5xl sm:text-6xl md:text-7xl font-extrabold tracking-tight leading-tight mb-6">
+            <span
+              className="
+                bg-gradient-to-r from-cyan-400 via-[#8c60b5] to-purple-900
+                bg-clip-text text-transparent
+                bg-[length:300%_100%]
+                animate-shine"
+            >
+              Private & Compliant Token Transfers
+            </span>
           </h1>
-          <p className="text-lg sm:text-xl md:text-2xl text-gray-300 mb-8 max-w-3xl mx-auto leading-relaxed">
-            Send multiple tokens to multiple recipients with complete privacy and AML compliance. 
-            Powered by AI for seamless natural language interactions.
+          <p className="text-lg sm:text-xl md:text-2xl text-purple-100 max-w-3xl mx-auto leading-relaxed">
+            Send tokens through a privacy layer like <strong>eAVAX</strong> with built-in <strong>AML compliance</strong>.
+            Fast. Anonymous. Secure.
           </p>
         </div>
 
-        <div className="flex flex-col sm:flex-row gap-4 justify-center mb-10 sm:mb-16">
+        {/* <div className="flex justify-center mb-20 sm:mb-28 animate-fade-in-up animation-delay-600">
           <Button
             onClick={onTransferClick}
             size="lg"
-            className="px-6 py-6 text-lg bg-gradient-to-r from-cyan-500 to-fuchsia-600 hover:from-cyan-600 hover:to-fuchsia-700 text-white shadow-lg shadow-fuchsia-700/25 hover:shadow-fuchsia-700/40 transition-all duration-300 hover:scale-105"
+            className="px-6 py-6 text-lg font-semibold bg-gradient-to-r from-cyan-500 to-[#8A2BE2] hover:from-cyan-600 hover:to-purple-600 text-white rounded-full shadow-xl shadow-[#8A2BE2]/25 hover:shadow-[#8A2BE2]/40 transition-all duration-300 ease-out transform hover:scale-105 active:scale-95 border border-[#8A2BE2]"
           >
-            <Users className="w-5 h-5 mr-2" />
-            Start Multi-Transfer
-            <ArrowRight className="w-4 h-4 ml-2 opacity-70" />
+            <Users className="w-6 h-6 mr-2" />
+            Start Private Transfer
+            <ArrowRight className="w-5 h-5 ml-2 opacity-80" />
           </Button>
-          
-          <Button
-            onClick={onPromptClick}
-            size="lg"
-            variant="outline"
-            className="px-6 py-6 text-lg border-fuchsia-500/50 text-fuchsia-300 hover:bg-fuchsia-500/10 hover:border-fuchsia-400 transition-all duration-300 hover:scale-105"
-          >
-            <Zap className="w-5 h-5 mr-2" />
-            Try AI Assistant
-            <ArrowRight className="w-4 h-4 ml-2 opacity-70" />
-          </Button>
-        </div>
+        </div> */}
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 text-left">
-          <div className="bg-slate-900/50 backdrop-blur-sm rounded-xl p-6 border border-cyan-500/20 hover:border-cyan-500/50 transition-all duration-300 group transform hover:-translate-y-1 hover:shadow-lg hover:shadow-cyan-500/20">
-            <Shield className="w-12 h-12 text-cyan-400 mb-4 group-hover:text-cyan-300 transition-colors group-hover:scale-110 transform transition-all" />
-            <h3 className="text-xl font-semibold text-white mb-2">AML Compliance</h3>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-10 text-left animate-fade-in-up animation-delay-900">
+          <div className="bg-slate-800/60 backdrop-blur-md rounded-2xl p-8 border border-cyan-600/30 hover:border-cyan-500/60 transition-all duration-300 group transform hover:-translate-y-2 hover:shadow-2xl hover:shadow-cyan-500/20">
+            <Shield className="w-14 h-14 text-cyan-400 mb-5 group-hover:text-cyan-300 group-hover:scale-110 transition-transform duration-300" />
+            <h3 className="text-2xl font-bold text-white mb-3">Regulatory Compliance</h3>
             <p className="text-gray-400 group-hover:text-gray-300 transition-colors">
-              Every wallet is verified against global AML databases before any transfer is executed.
+              All wallets are checked against AML databases before transactions for complete compliance.
             </p>
           </div>
-          
-          <div className="bg-slate-900/50 backdrop-blur-sm rounded-xl p-6 border border-fuchsia-500/20 hover:border-fuchsia-500/50 transition-all duration-300 group transform hover:-translate-y-1 hover:shadow-lg hover:shadow-fuchsia-500/20">
-            <Eye className="w-12 h-12 text-fuchsia-400 mb-4 group-hover:text-fuchsia-300 transition-colors group-hover:scale-110 transform transition-all" />
-            <h3 className="text-xl font-semibold text-white mb-2">Privacy First</h3>
+
+          <div className="bg-slate-800/60 backdrop-blur-md rounded-2xl p-8 border border-[#8A2BE2]/30 hover:border-[#8A2BE2]/60 transition-all duration-300 group transform hover:-translate-y-2 hover:shadow-2xl hover:shadow-[#8A2BE2]/20">
+            <Eye className="w-14 h-14 text-purple-400 mb-5 group-hover:text-purple-300 group-hover:scale-110 transition-transform duration-300" />
+            <h3 className="text-2xl font-bold text-white mb-3">Privacy Tokens</h3>
             <p className="text-gray-400 group-hover:text-gray-300 transition-colors">
-              Tokens are converted to privacy equivalents (eAVAX, eETH) to ensure complete anonymity.
+              Your assets are converted into private equivalents (e.g., eAVAX) to protect identity and balances.
             </p>
           </div>
-          
-          <div className="sm:col-span-2 lg:col-span-1 bg-slate-900/50 backdrop-blur-sm rounded-xl p-6 border border-pink-500/20 hover:border-pink-500/50 transition-all duration-300 group transform hover:-translate-y-1 hover:shadow-lg hover:shadow-pink-500/20">
-            <Zap className="w-12 h-12 text-pink-400 mb-4 group-hover:text-pink-300 transition-colors group-hover:scale-110 transform transition-all" />
-            <h3 className="text-xl font-semibold text-white mb-2">AI Powered</h3>
+
+          <div className="bg-slate-800/60 backdrop-blur-md rounded-2xl p-8 border border-purple-600/30 hover:border-purple-500/60 transition-all duration-300 group transform hover:-translate-y-2 hover:shadow-2xl hover:shadow-purple-500/20">
+            <Zap className="w-14 h-14 text-purple-400 mb-5 group-hover:text-purple-300 group-hover:scale-110 transition-transform duration-300" />
+            <h3 className="text-2xl font-bold text-white mb-3">Frictionless UX</h3>
             <p className="text-gray-400 group-hover:text-gray-300 transition-colors">
-              Simply describe your transfer in plain English and our AI will handle the complex setup.
+              Seamlessly assign wallets, register once, and start bridging or transferring with a few clicks.
             </p>
           </div>
         </div>
       </div>
-    </div>
+    </section>
   );
 };
 
