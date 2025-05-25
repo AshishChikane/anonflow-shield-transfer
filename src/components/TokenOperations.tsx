@@ -149,7 +149,7 @@ export default function TokenOperations() {
           return;
         }
       }
-
+      console.log({operationType})
       const result =
         operationType === "deposit"
           ? await encryptedBalance.deposit(amountWei)
@@ -221,26 +221,12 @@ export default function TokenOperations() {
       <Toaster position="bottom-right" />
 
       {(isProcessing || isApproving) && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm">
-          <div className="loader ease-linear rounded-full border-8 border-t-8 border-gray-200 h-20 w-20"></div>
-          <style jsx>{`
-            .loader {
-              border-top-color: #8a2be2;
-              animation: spin 1s linear infinite;
-            }
-            @keyframes spin {
-              0% {
-                transform: rotate(0deg);
-              }
-              100% {
-                transform: rotate(360deg);
-              }
-            }
-          `}</style>
+         <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/50">
+             <div className="animate-spin h-16 w-16 border-t-8 border-b-8 border-white rounded-full border-t-[#8a2be2]" />
         </div>
       )}
 
-      <div className="bg-slate-900/70 border border-slate-700 rounded-3xl p-12 text-white shadow-xl shadow-[#8A2BE2]/20 backdrop-blur-xl max-w-lg mx-auto animate-fade-in-up animation-delay-600">
+      <div className="bg-slate-900/70 border border-slate-700 rounded-3xl p-12 text-white shadow-xl shadow-[#8A2BE2]/20 backdrop-blur-xl max-w-lg mx-auto animate-fade-in-up animation-delay-800">
         <h2 className="text-3xl font-bold mb-6 text-center bg-gradient-to-r from-cyan-400 via-[#8A2BE2] to-purple-500 bg-clip-text text-transparent bg-[length:300%_100%] animate-shine">
           Bridge
         </h2>
@@ -348,7 +334,7 @@ export default function TokenOperations() {
           <p className="mt-4 text-sm text-green-400">
             Transaction Hash:{" "}
             <a
-              href={getExplorerUrl(chain?.id, txHash)}
+              href={getExplorerUrl(txHash,43113)}
               target="_blank"
               rel="noopener noreferrer"
               className="underline"

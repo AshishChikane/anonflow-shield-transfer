@@ -5,302 +5,226 @@ import { formatBalance, getExplorerUrl } from '../lib/utils';
 import { Button } from '@/components/ui/button';
 import { Toaster, toast } from 'react-hot-toast';
 import { AlertTriangle, X } from 'lucide-react';
+import { CheckCircle  } from "lucide-react";
 
 export default function TokenTransfer() {
-  const { isConnected, chain, eerc, encryptedBalance } = useEERCContext();
-  const [amount, setAmount] = useState('');
-  const [selectedRecipients, setSelectedRecipients] = useState<string[]>([]);
-  const [newRecipientAddress, setNewRecipientAddress] = useState('');
-  const [isEqual, setIsEqual] = useState(true);
-  const [distribution, setDistribution] = useState<number[]>([]);
-  const [txHash, setTxHash] = useState<string | null>(null);
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const isTestnet = chain?.id === 43113;
-
-  useEffect(() => {
-    if (selectedRecipients.length === 0) {
-      setDistribution([]);
-      return;
-    }
-
-    if (isEqual) {
-      const totalRecipients = selectedRecipients.length;
-      const evenShare = Math.floor(100 / totalRecipients);
-      let remainder = 100 - (evenShare * totalRecipients);
-
-      const newDistribution = Array(totalRecipients).fill(evenShare);
-
-      for (let i = 0; i < remainder; i++) {
-        newDistribution[i]++;
+    const { isConnected, chain, eerc, encryptedBalance } = useEERCContext();
+    const [amount, setAmount] = useState('');
+    const [selectedRecipients, setSelectedRecipients] = useState<string[]>([]);
+    const [newRecipientAddress, setNewRecipientAddress] = useState('');
+    const [isEqual, setIsEqual] = useState(true);
+    const [distribution, setDistribution] = useState<number[]>([]);
+    const [isProcessing, setIsProcessing] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+  
+    const [currentTxHash, setCurrentTxHash] = useState<string | null>(null);
+    const [transactionModalVisible, setTransactionModalVisible] = useState(false);
+    const [transfersQueue, setTransfersQueue] = useState<{ recipient: string; amount: bigint }[]>([]);
+    const [currentTransferIndex, setCurrentTransferIndex] = useState<number>(0);
+  
+    const isTestnet = chain?.id === 43113;
+  
+    useEffect(() => {
+      if (selectedRecipients.length === 0) {
+        setDistribution([]);
+        return;
       }
-      setDistribution(newDistribution);
-    } else {
-      if (distribution.length !== selectedRecipients.length) {
-        const initialDistribution = Array(selectedRecipients.length).fill(0);
-        if (selectedRecipients.length > 0) {
-          initialDistribution[0] = 100;
+  
+      if (isEqual) {
+        const totalRecipients = selectedRecipients.length;
+        const evenShare = Math.floor(100 / totalRecipients);
+        let remainder = 100 - evenShare * totalRecipients;
+        const newDistribution = Array(totalRecipients).fill(evenShare);
+        for (let i = 0; i < remainder; i++) newDistribution[i]++;
+        setDistribution(newDistribution);
+      } else {
+        if (distribution.length !== selectedRecipients.length) {
+          const initialDistribution = Array(selectedRecipients.length).fill(0);
+          if (selectedRecipients.length > 0) initialDistribution[0] = 100;
+          setDistribution(initialDistribution);
         }
-        setDistribution(initialDistribution);
       }
-    }
-  }, [selectedRecipients, isEqual]); 
-
-  const totalDistributionPercent = useCallback(() => {
-    return distribution.reduce((acc, val) => acc + val, 0);
-  }, [distribution]);
-
-  const handleSliderChange = useCallback((index: number, value: number) => {
-    setDistribution(prevDistribution => {
-      const newDistribution = [...prevDistribution];
-      newDistribution[index] = value; 
-
-      let remainingPercentage = 100 - value;
-      let otherIndices = Array.from({ length: newDistribution.length }, (_, i) => i).filter(i => i !== index);
-
-      if (otherIndices.length > 0) {
-        const currentSumOfOthers = otherIndices.reduce((sum, i) => sum + (prevDistribution[i] || 0), 0);
-
-        if (currentSumOfOthers > 0) {
+    }, [selectedRecipients, isEqual]);
+  
+    const totalDistributionPercent = useCallback(
+      () => distribution.reduce((acc, val) => acc + val, 0),
+      [distribution]
+    );
+  
+    const handleSliderChange = useCallback((index: number, value: number) => {
+      setDistribution(prev => {
+        const newDistribution = [...prev];
+        newDistribution[index] = value;
+        let remaining = 100 - value;
+        const otherIndices = prev.map((_, i) => i).filter(i => i !== index);
+        const currentSum = otherIndices.reduce((sum, i) => sum + (prev[i] || 0), 0);
+  
+        if (currentSum > 0) {
           otherIndices.forEach(i => {
-            const proportionalShare = ((prevDistribution[i] || 0) / currentSumOfOthers) * remainingPercentage;
-            newDistribution[i] = Math.max(0, Math.round(proportionalShare));
+            const proportion = (prev[i] || 0) / currentSum;
+            newDistribution[i] = Math.max(0, Math.round(proportion * remaining));
           });
-        } else { 
-          const equalShare = Math.floor(remainingPercentage / otherIndices.length);
-          otherIndices.forEach(i => {
-            newDistribution[i] = equalShare;
-          });
-          let equalRemainder = remainingPercentage - (equalShare * otherIndices.length);
-          for (let i = 0; i < equalRemainder; i++) {
+        } else {
+          const equal = Math.floor(remaining / otherIndices.length);
+          otherIndices.forEach(i => (newDistribution[i] = equal));
+          for (let i = 0; i < remaining - equal * otherIndices.length; i++) {
             newDistribution[otherIndices[i]]++;
           }
         }
-      }
-      const currentTotal = newDistribution.reduce((a, b) => a + b, 0);
-      const adjustment = 100 - currentTotal;
-      if (adjustment !== 0 && newDistribution.length > 0) {
-        let adjustIndex = 0;
-        if (newDistribution.length > 1) {
-          adjustIndex = (index === 0) ? 1 : 0;
+  
+        const currentTotal = newDistribution.reduce((a, b) => a + b, 0);
+        const adjust = 100 - currentTotal;
+        if (adjust !== 0) {
+          const adjustIndex = index === 0 && newDistribution.length > 1 ? 1 : 0;
+          newDistribution[adjustIndex] = Math.max(0, newDistribution[adjustIndex] + adjust);
         }
-        newDistribution[adjustIndex] = Math.max(0, newDistribution[adjustIndex] + adjustment);
-      }
-
-      return newDistribution;
-    });
-  }, []);
-
-
-  const transferAmountIndividually = async (recipient: string, amount: BigInt) => {
-    if (!encryptedBalance) {
-      throw new Error('EERC balance context not available for transfer.');
-    }
-    if (amount <= 0n) {
-      console.warn(`Skipping transfer of zero or negative amount to ${recipient}`);
-      return null;
-    }
-
-    try {
-    console.log({recipient,amount})
-      const result = await encryptedBalance.privateTransfer(recipient, amount);
-      console.log({result})
-
-
-      return result.transactionHash;
-    } catch (err) {
-      console.error(`Error during individual transfer to ${recipient}:`, err);
-    }
-  };
-
-
-  const handleTransfer = async () => {
-    if (!isConnected) {
-      toast.error('Wallet not connected.');
-      return;
-    }
-    if (!eerc || !encryptedBalance) {
-      toast.error('EERC context not fully loaded. Please refresh or connect wallet.');
-      return;
-    }
-    if (selectedRecipients.length === 0) {
-      toast.error('Please add at least one recipient.');
-      return;
-    }
-    if (!amount || isNaN(Number(amount)) || Number(amount) <= 0) {
-      toast.error('Please enter a valid amount greater than zero.');
-      return;
-    }
-
-    const amountInWei = parseEther(amount); 
-
-    if (amountInWei > (encryptedBalance?.decryptedBalance || 0n)) {
-      toast.error('Insufficient balance for this transfer.');
-      return;
-    }
-
-    const currentTotalDistribution = totalDistributionPercent();
-    if (currentTotalDistribution !== 100 || distribution.some(p => p < 0)) {
-      toast.error(`Distribution percentages must sum to 100%. Current: ${currentTotalDistribution}%`);
-      return;
-    }
-
-    setIsProcessing(true);
-    setError(null);
-    setTxHash(null);
-    const overallToastId = toast.loading('Initiating transfers...');
-
-    const successfulHashes: string[] = [];
-    const failedTransfersDetails: { recipient: string; error: string }[] = [];
-
-    try {
-      const transfersToExecute = selectedRecipients
-        .map((recipient, idx) => ({
-          recipient,
-          amountInWeiForRecipient: (amountInWei * BigInt(distribution[idx])) / 100n
-        }))
-        .filter(item => item.amountInWeiForRecipient > 0n);
-
-      if (transfersToExecute.length === 0) {
-        toast.error("No recipients would receive tokens (all calculated amounts are zero). Adjust amount or distribution.", { id: overallToastId });
-        return;
-      }
-
-      for (let i = 0; i < transfersToExecute.length; i++) {
-        const { recipient, amountInWeiForRecipient } = transfersToExecute[i];
-        try {
-          const recipientToastId = toast.loading(`Transferring to ${recipient.slice(0, 6)}...${recipient.slice(-4)}...`);
-
-          const hash = await transferAmountIndividually(recipient, amountInWeiForRecipient);
-          await new Promise(resolve => setTimeout(resolve, 15000)); 
-
-          if (hash) {
-            successfulHashes.push(hash);
-            toast.success(`Transferred to ${recipient.slice(0, 6)}...${recipient.slice(-4)}`, {
-              id: recipientToastId,
-              duration: 5000,
-              action: {
-                  label: 'View Tx',
-                  onClick: () => window.open(getExplorerUrl(chain?.id, hash), '_blank')
-              }
-            });
-          } else {
-            failedTransfersDetails.push({ recipient, error: 'Transfer returned no hash.' });
-             toast.error(`Transfer to ${recipient.slice(0, 6)}...${recipient.slice(-4)} failed.`, {
-                id: recipientToastId,
-                duration: 5000,
-                description: 'No transaction hash received.'
-            });
-          }
-
-        } catch (innerError) {
-          const errMsg = innerError instanceof Error ? innerError.message : 'Unknown error';
-          failedTransfersDetails.push({ recipient, error: errMsg });
-          toast.error(`Transfer to ${recipient.slice(0, 6)}...${recipient.slice(-4)} failed.`, {
-            id: `transfer-${recipient}`, 
-            duration: 7000,
-            description: errMsg
-          });
-        }
-
-        if (i < transfersToExecute.length - 1) {
-            await new Promise(resolve => setTimeout(resolve, 1000));
-        }
-      }
-
-      if (successfulHashes.length > 0) {
-        setTxHash(successfulHashes[0]);
-        toast.success(`Completed ${successfulHashes.length} out of ${transfersToExecute.length} transfers.`, {
-          id: overallToastId,
-          duration: 15000,
-          action: successfulHashes.length === 1 ? {
-              label: 'View Tx',
-              onClick: () => window.open(getExplorerUrl(chain?.id, successfulHashes[0]), '_blank')
-          } : undefined,
-          description: (
-              <>
-                {successfulHashes.length > 1 && (
-                    <p className="text-sm">Multiple transactions completed. See console for details.</p>
-                )}
-                {failedTransfersDetails.length > 0 && (
-                    <p className="text-red-400 mt-2 text-sm">
-                        {failedTransfersDetails.length} transfers failed. Check individual messages.
-                    </p>
-                )}
-              </>
-          )
-        });
-      } else {
-        toast.error(`No transfers were successful.`, {
-          id: overallToastId,
-          duration: 7000,
-          description: failedTransfersDetails.length > 0 ? `All ${transfersToExecute.length} transfers failed. Check individual messages.` : 'No valid transfers to execute.'
-        });
-      }
-
-      setTimeout(() => encryptedBalance.refetchBalance(), 5000);
-      setAmount('');
-      setSelectedRecipients([]);
-      setIsEqual(true);
-
-    } catch (outerError) {
-      const msg = outerError instanceof Error ? outerError.message : 'Unknown error occurred during setup.';
-      setError(msg);
-      toast.error('Overall transfer process encountered an unexpected error!', {
-        id: overallToastId,
-        duration: 7000,
-        description: msg
+  
+        return newDistribution;
       });
-      console.error('Overall transfer error:', outerError);
-    } finally {
-      setIsProcessing(false);
-    }
-  };
-
-  const addRecipient = () => {
-    const trimmedAddress = newRecipientAddress.trim();
-    if (!trimmedAddress) {
-      toast.error('Recipient address cannot be empty.');
-      return;
-    }
-    if (!isAddress(trimmedAddress)) {
-      toast.error('Invalid Ethereum address format.');
-      return;
-    }
-    if (selectedRecipients.includes(trimmedAddress)) {
-      toast.error('Recipient address already added.');
-      return;
-    }
-
-    setSelectedRecipients((prev) => [...prev, trimmedAddress]);
-    setNewRecipientAddress('');
-    toast.success('Recipient added!');
-  };
-
-  const removeRecipient = (addressToRemove: string) => {
-    setSelectedRecipients((prev) => prev.filter((addr) => addr !== addressToRemove));
-    toast.success('Recipient removed.');
-  };
-
-  const handleNewRecipientKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      addRecipient();
-    }
-  };
-
+    }, []);
+  
+    const transferAmount = async (recipient: string, amount: bigint): Promise<string> => {
+      const result = await encryptedBalance.privateTransfer(recipient, amount);
+      return result.transactionHash;
+    };
+  
+    const handleTransfer = async () => {
+      if (!isConnected) return toast.error('Wallet not connected.');
+      if (!eerc || !encryptedBalance) return toast.error('EERC context not fully loaded.');
+      if (selectedRecipients.length === 0) return toast.error('Add at least one recipient.');
+      if (!amount || isNaN(Number(amount)) || Number(amount) <= 0) return toast.error('Invalid amount.');
+  
+      const amountInWei = parseEther(amount);
+      if (amountInWei > (encryptedBalance?.decryptedBalance || 0n)) {
+        return toast.error('Insufficient balance.');
+      }
+  
+      const currentTotalDistribution = totalDistributionPercent();
+      if (currentTotalDistribution !== 100 || distribution.some(p => p < 0)) {
+        return toast.error(`Distribution must sum to 100%. Current: ${currentTotalDistribution}%`);
+      }
+  
+      const transfers = selectedRecipients.map((recipient, idx) => ({
+        recipient,
+        amount: (amountInWei * BigInt(distribution[idx])) / 100n
+      })).filter(tx => tx.amount > 0n);
+  
+      if (transfers.length === 0) return toast.error("All calculated amounts are zero.");
+  
+      setIsProcessing(true);
+      setError(null);
+      setTransfersQueue(transfers);
+      setCurrentTransferIndex(0);
+  
+      await executeTransfer(transfers[0]);
+    };
+  
+    const executeTransfer = async (transfer: { recipient: string; amount: bigint }) => {
+      try {
+        const txHash = await transferAmount(transfer.recipient, transfer.amount);
+        console.log({txHash})
+        setCurrentTxHash(txHash);
+        await new Promise(resolve => setTimeout(resolve, 10000));
+        setTransactionModalVisible(true);
+        // setIsProcessing(false);
+      } catch (err) {
+        // console.error("Transfer failed:", err);
+        // toast.error(`Transfer to ${transfer.recipient.slice(0, 6)}... failed.`);
+        setIsProcessing(false);
+        // proceedToNextTransfer(); // Skip on error
+      }
+    };
+  
+    const proceedToNextTransfer = async () => {
+        setTransactionModalVisible(false);
+        const nextIndex = currentTransferIndex + 1;
+      
+        if (nextIndex < transfersQueue.length) {
+          setCurrentTransferIndex(nextIndex);
+          
+          // Wait for 15 seconds before executing the transfer
+          await new Promise(resolve => setTimeout(resolve, 15000));
+          
+          await executeTransfer(transfersQueue[nextIndex]);
+        } else {
+          toast.success('All transfers completed.');
+          setIsProcessing(false);
+          setAmount('');
+          setSelectedRecipients([]);
+          setIsEqual(true);
+          encryptedBalance.refetchBalance();
+          setTransfersQueue([]);
+        }
+    };
+  
+    const addRecipient = () => {
+      const addr = newRecipientAddress.trim();
+      if (!addr) return toast.error('Empty address.');
+      if (!isAddress(addr)) return toast.error('Invalid address.');
+      if (selectedRecipients.includes(addr)) return toast.error('Already added.');
+  
+      setSelectedRecipients(prev => [...prev, addr]);
+      setNewRecipientAddress('');
+      toast.success('Recipient added!');
+    };
+  
+    const removeRecipient = (address: string) => {
+      setSelectedRecipients(prev => prev.filter(a => a !== address));
+      toast.success('Recipient removed.');
+    };
+  
+    const handleNewRecipientKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        addRecipient();
+      }
+    };
+  
   return (
     <>
-      <Toaster position="bottom-right" reverseOrder={false} />
-
-      {isProcessing && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm">
-          <div className="animate-spin rounded-full h-20 w-20 border-t-8 border-b-8 border-gray-200 border-t-[#8a2be2]" />
+    <Toaster position="bottom-right" />
+    {isProcessing && (
+        <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/50">
+          <div className="animate-spin h-16 w-16 border-t-8 border-b-8 border-white rounded-full border-t-[#8a2be2]" />
         </div>
       )}
 
-      <div className="bg-slate-900/70 border border-slate-700 rounded-3xl p-12 text-white shadow-xl shadow-[#8A2BE2]/20 backdrop-blur-xl max-w-lg mx-auto animate-fade-in-up animation-delay-600">
+      {transactionModalVisible && currentTxHash && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/80 backdrop-blur-md">
+        <div className="bg-slate-900/70 border border-slate-700 rounded-3xl p-10 text-white shadow-xl shadow-[#8A2BE2]/20 max-w-md w-full animate-fade-in-up relative">
+          
+          <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-cyan-400 to-purple-500 p-4 rounded-full shadow-lg">
+            <CheckCircle className="w-12 h-12 text-white" />
+          </div>
+          
+          <h2 className="mt-8 text-2xl font-bold mb-4 text-center bg-gradient-to-r from-cyan-400 via-[#8A2BE2] to-purple-500 bg-clip-text text-transparent bg-[length:300%_100%] animate-shine">
+            Transaction Complete
+          </h2>
+      
+          <p className="text-sm text-slate-300 text-center mb-6">
+            Verify your Transaction :{' '}
+            <a
+              className="underline text-cyan-400 hover:text-cyan-300 break-all"
+              href={getExplorerUrl(currentTxHash, chain?.id)}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {currentTxHash.slice(0, 10)}...
+            </a>
+          </p>
+      
+          <Button
+            onClick={proceedToNextTransfer}
+            className="w-full px-4 py-5 text-lg font-semibold bg-gradient-to-r from-cyan-500 to-[#8A2BE2] hover:from-cyan-600 hover:to-purple-600 text-white rounded-full shadow-xl shadow-[#8A2BE2]/25 hover:shadow-[#8A2BE2]/40 transition-all duration-300 ease-out transform hover:scale-105 active:scale-95 border border-[#8A2BE2]"
+          >
+            Confirm
+          </Button>
+        </div>
+      </div>
+      
+      )}
+
+      <div className="bg-slate-900/70 border border-slate-700 rounded-3xl p-12 text-white shadow-xl shadow-[#8A2BE2]/20 backdrop-blur-xl max-w-lg mx-auto animate-fade-in-up animation-delay-800">
         <h2 className="text-3xl font-bold mb-6 text-center bg-gradient-to-r from-cyan-400 via-[#8A2BE2] to-purple-500 bg-clip-text text-transparent bg-[length:300%_100%] animate-shine">
           Multi Transfer
         </h2>
@@ -431,11 +355,11 @@ export default function TokenTransfer() {
           {isProcessing ? 'Processing...' : 'Transfer'}
         </Button>
 
-        {txHash && (
+        {/* {txHash && (
             <p className="mt-4 text-sm text-green-400 text-center">
                 Last Tx Hash: <a href={getExplorerUrl(chain?.id, txHash)} target="_blank" rel="noopener noreferrer" className="underline">{txHash.slice(0, 8)}...{txHash.slice(-6)}</a>
             </p>
-        )}
+        )} */}
 
         {error && (
             <p className="mt-4 text-sm text-red-500 flex items-center gap-2 text-center">

@@ -1,32 +1,31 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import axios from 'axios'
 import { useEERCContext } from '../context/EERCContext'
 import { getExplorerUrl } from '../lib/utils'
 import { Button } from '@/components/ui/button'
 import { CheckCircle, Zap, AlertTriangle } from 'lucide-react'
 import toast, { Toaster } from 'react-hot-toast'
 
-export default function RegisterCard({ decryptionKey, setDecryptionKey }) {
+export default function RegisterCard({ decryptionKey, setDecryptionKey, contractAddress,amlScore,setAmlScore }) {
   const { isConnected, chain, eerc } = useEERCContext()
   const [isRegistering, setIsRegistering] = useState(false)
   const [isGeneratingKey, setIsGeneratingKey] = useState(false)
+  const [isCheckingAML, setIsCheckingAML] = useState(false)
   const [txHash, setTxHash] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [generatedKey, setGeneratedKey] = useState<string | null>(null)
+
   const isMainnet = chain?.id === 43113
-  const LOCAL_STORAGE_KEY_KEY = localStorage.getItem('decryptionKey');
+  const LOCAL_STORAGE_KEY_KEY = localStorage.getItem('decryptionKey')
 
-  console.log({LOCAL_STORAGE_KEY_KEY})
-
-
-  useEffect(()=>{
-    if(LOCAL_STORAGE_KEY_KEY){
+  useEffect(() => {
+    if (LOCAL_STORAGE_KEY_KEY) {
       setDecryptionKey(LOCAL_STORAGE_KEY_KEY)
       setGeneratedKey(LOCAL_STORAGE_KEY_KEY)
     }
-  },[decryptionKey])
-
+  }, [decryptionKey])
 
   const handleRegister = async () => {
     if (!eerc) return
@@ -55,20 +54,44 @@ export default function RegisterCard({ decryptionKey, setDecryptionKey }) {
     if (!eerc) return
     setIsGeneratingKey(true)
     setError(null)
+    setAmlScore(null)
     try {
       const key = await eerc.generateDecryptionKey()
       setGeneratedKey(key)
       setDecryptionKey(key)
+      localStorage.setItem('decryptionKey', key)
       toast.success('Unique key generated successfully!')
-      localStorage.setItem(LOCAL_STORAGE_KEY_KEY, key);
-      setDecryptionKey(key);
+
+      setIsCheckingAML(true)
+
+      const apiKey = 'efc1cb15054de76ff8d2c8b68e7e834419c8da618436f14b209f4b90a9792385'
+      let body =  {
+        address: contractAddress,       
+        chain_id: 43114,
+       interaction_risk : true
+      };
+
+      const response = await axios.post(
+        'https://aml.blocksec.com/address-compliance/api/v3/risk-score',
+        body,
+        {
+          headers: {
+            'API-KEY': apiKey,
+            'Content-Type': 'application/json',
+          }
+        }
+      )
+      const score = response.data?.data?.risk_score ?? null
+
+      setAmlScore(score)
+      toast.success('AML score fetched successfully!')
     } catch (err) {
-      console.error('Error generating key:', err)
-      const msg = err instanceof Error ? err.message : 'An error occurred while generating key'
+      const msg = err instanceof Error ? err.message : 'Error occurred during key generation or AML check.'
       setError(msg)
       toast.error(msg)
     } finally {
       setIsGeneratingKey(false)
+      setIsCheckingAML(false)
     }
   }
 
@@ -88,27 +111,13 @@ export default function RegisterCard({ decryptionKey, setDecryptionKey }) {
     <>
       <Toaster position="bottom-right" />
 
-      {(isRegistering || isGeneratingKey) && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm">
-          <div className="loader ease-linear rounded-full border-8 border-t-8 border-gray-200 h-20 w-20"></div>
-          <style jsx>{`
-            .loader {
-              border-top-color: #8a2be2;
-              animation: spin 1s linear infinite;
-            }
-            @keyframes spin {
-              0% {
-                transform: rotate(0deg);
-              }
-              100% {
-                transform: rotate(360deg);
-              }
-            }
-          `}</style>
+      {(isRegistering || isGeneratingKey || isCheckingAML) && (
+        <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/50">
+          <div className="animate-spin h-16 w-16 border-t-8 border-b-8 border-white rounded-full border-t-[#8a2be2]" />
         </div>
       )}
 
-      <div className="bg-slate-900/70 border border-slate-700 rounded-3xl p-12 py-14 text-white shadow-xl shadow-[#8A2BE2]/20 backdrop-blur-xl max-w-lg mx-auto animate-fade-in-up animation-delay-600">
+      <div className="bg-slate-900/70 border border-slate-700 rounded-3xl p-12 py-14 text-white shadow-xl shadow-[#8A2BE2]/20 backdrop-blur-xl max-w-lg mx-auto animate-fade-in-up animation-delay-800">
         <h2 className="text-3xl font-bold mb-6 text-center bg-gradient-to-r from-cyan-400 via-[#8A2BE2] to-purple-500 bg-clip-text text-transparent bg-[length:300%_100%] animate-shine">
           Assign Wallet
         </h2>
@@ -139,19 +148,42 @@ export default function RegisterCard({ decryptionKey, setDecryptionKey }) {
               {!generatedKey && (
                 <Button
                   onClick={handleGenerateKey}
-                  disabled={isGeneratingKey}
+                  disabled={isGeneratingKey || isCheckingAML}
                   className="w-full px-3 py-5 text-lg font-semibold bg-gradient-to-r from-cyan-500 to-[#8A2BE2] hover:from-cyan-600 hover:to-purple-600 text-white rounded-full shadow-xl shadow-[#8A2BE2]/25 hover:shadow-[#8A2BE2]/40 transition-all duration-300 ease-out transform hover:scale-105 active:scale-95 border border-[#8A2BE2]"
                 >
-                  {isGeneratingKey ? 'Generating...' : 'Generate Unique Key'}
+                  {isGeneratingKey || isCheckingAML ? 'Generating & Checking AML...' : 'Generate & Check AML'}
                 </Button>
               )}
 
-              {generatedKey && (
+            {generatedKey && (
+              <>
                 <div className="bg-slate-800/50 border border-slate-700/40 p-4 rounded-xl text-xs font-mono text-yellow-300 break-all">
                   <p className="mb-1">Your Unique key (save this securely):</p>
                   <p>{generatedKey}</p>
                 </div>
-              )}
+                {amlScore !== null && (
+                  <div className="mt-2 text-center text-sm font-semibold">
+                    AML Risk Score:{' '}
+                    <span
+                      className={`font-mono ${
+                        amlScore <= 3
+                          ? 'text-green-400'
+                          : amlScore === 4
+                          ? 'text-yellow-400'
+                          : 'text-red-600 font-bold'
+                      }`}
+                    >
+                      {amlScore} / 5 —{' '}
+                      {amlScore <= 3
+                        ? '🟢 Good'
+                        : amlScore === 4
+                        ? '🟠 Risky'
+                        : '🔴 Alert: Avoid Transactions'}
+                    </span>
+                  </div>
+                )}
+              </>
+            )}
             </div>
           )}
 
@@ -184,7 +216,7 @@ export default function RegisterCard({ decryptionKey, setDecryptionKey }) {
           )}
 
           <p className="mt-6 text-xs text-center text-slate-400">
-          Secure your crypto generate unique keys for private transaction. Encrypted key pairs ensure your transactions are always secure and untraceable.
+            Secure your crypto by generating unique keys for private transactions. Encrypted key pairs ensure your transactions are always secure, untraceable, and compliant with AML checks.
           </p>
         </div>
       </div>

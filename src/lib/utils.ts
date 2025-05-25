@@ -43,7 +43,7 @@ export function formatBalance(balance: bigint | undefined, decimals: number = 18
  */
 export function getExplorerUrl(txHash: string, isMainnet: boolean): string {
     const baseUrl = isMainnet
-        ? 'https://snowtrace.io'
+        ? 'https://testnet.snowtrace.io'
         : 'https://testnet.snowtrace.io'
 
     return `${baseUrl}/tx/${txHash}`

@@ -9,7 +9,7 @@
 // // Create the wagmi config
 // const config = createConfig(
 //     getDefaultConfig({
-//         appName: 'Privora',
+//         appName: 'Goast Protocol',
 //         // You should replace this with your project ID from WalletConnect
 //         // https://cloud.walletconnect.com/
 //         walletConnectProjectId: '928996a562ebd502c7b97128dccf0e74',
@@ -40,7 +40,7 @@ const chains = [avalancheFuji];
 
 const config = createConfig(
   getDefaultConfig({
-    appName: 'Privora',
+    appName: 'Goast Protocol',
     walletConnectProjectId: '928996a562ebd502c7b97128dccf0e74',
     chains,
   })

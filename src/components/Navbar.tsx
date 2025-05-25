@@ -88,7 +88,7 @@ export default function Navbar({
               <Shield className="w-5 h-5 text-white" />
             </div>
             <div>
-              <h1 className="text-lg font-bold text-white">Privora</h1>
+              <h1 className="text-lg font-bold text-white">Goast Protocol</h1>
               <p className="text-xs text-cyan-400">Token Transfer Platform</p>
             </div>
           </div>

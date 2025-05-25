@@ -25,19 +25,22 @@ const Index = () => {
   const [connectedAddress, setConnectedAddress] = useState<string | null>(null);
   const [decryptionKey, setDecryptionKeyState] = useState('');
   const [activeMenuItem, setActiveMenuItem] = useState<MenuItem>('assignWallet');
+  const [amlScore, setAmlScore] = useState<number | null>(null)
 
   useEffect(() => {
     const savedMenu = localStorage.getItem(LOCAL_STORAGE_MENU_KEY) as MenuItem | null;
     if (savedMenu && ['assignWallet', 'bridge', 'transfer'].includes(savedMenu)) {
       setActiveMenuItem(savedMenu);
+    } else {
+      setActiveMenuItem('assignWallet'); // Ensure default
     }
-
+  
     const savedKey = localStorage.getItem(LOCAL_STORAGE_KEY_KEY);
     if (savedKey) {
       setDecryptionKeyState(savedKey);
     }
   }, []);
-
+  
   useEffect(() => {
     localStorage.setItem(LOCAL_STORAGE_MENU_KEY, activeMenuItem);
   }, [activeMenuItem]);
@@ -60,6 +63,13 @@ const Index = () => {
     }
     setActiveMenuItem(menu);
   };
+
+  useEffect(() => {
+    if (connectedAddress) {
+      setActiveMenuItem('assignWallet');
+    }
+  }, [connectedAddress]);
+  
 
   return (
     <div className="min-h-screen flex flex-col text-white">
@@ -88,8 +98,14 @@ const Index = () => {
               <Menu activeMenu={activeMenuItem} onChange={handleMenuChange} />
               {activeMenuItem === 'assignWallet' && (
                 <div className="min-h-96 flex items-center justify-center px-4">
-                  <Register setDecryptionKey={setDecryptionKey} decryptionKey={decryptionKey} />
-                </div>
+                <Register
+                  decryptionKey={decryptionKey}
+                  setDecryptionKey={setDecryptionKey}
+                  contractAddress={connectedAddress}
+                  setAmlScore={setAmlScore}
+                  amlScore={amlScore}
+                />               
+               </div>
               )}
               {activeMenuItem === 'bridge' && (
                 <div className="space-y-8">
